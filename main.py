@@ -1,76 +1,20 @@
-import webbrowser
+from flat import Bill, Flatmate
+from report import PdfReport
 
-from fpdf import FPDF
+amt = float(input("Hey enter the bill amount: "))
+period = input("What is the bill period :  Eg- December 2020")
 
-class Bill:
-    """
-    Object that contain data about the bill such as total amount and period
-    of the bill
-    """
+name1 = input("What is your name? ")
+days_in_house1 = int(input(f"How many days did {name1} stay in the house during the bill period? "))
+name2 = input("What is your name other person")
+days_in_house2 = int(input(f"How many days did {name2} stay in the house during the bill period? "))
 
-    def __init__(self, amount, period):
-        self.amount = amount
-        self.period = period
+bill = Bill(amount=amt, period=period)
+flatmate1 = Flatmate(name=name1, days_in_house=days_in_house1)
+flatmate2 = Flatmate(name=name2, days_in_house=days_in_house2)
 
+print(f"{flatmate1.name} pays : {flatmate1.pays(bill=bill, flatmate2=flatmate2)}")
+print(f"{flatmate2.name} pays : {flatmate2.pays(bill=bill, flatmate2=flatmate1)}")
 
-class Flatmate:
-    """
-    Create a flatmate person whom lives in the flat and pays the share of the bill.
-    """
-
-    def __init__(self, name, days_in_house):
-        self.name = name
-        self.days_in_house = days_in_house
-
-    def pays(self, bill,flatmate2):
-        weight = self.days_in_house/(self.days_in_house+flatmate2.days_in_house)
-        return bill.amount * weight
-
-
-class PdfReport:
-    """
-    Create a file that contains data about the flatmates such as their name, their due amount
-    and period informaiton
-    """
-
-    def __init__(self,filename):
-        self.filename = filename
-
-    def generate(self,flatmate1,flatmate2,bill):
-        pdf = FPDF(orientation='P', unit='pt', format='A4')
-        pdf.add_page()
-
-        #add logo to the report
-        pdf.image(name='house.png', w=30, h=30)
-
-        #insert title
-        pdf.set_font(family='Times', size=24, style='B')
-        pdf.cell(w=0, h=80, txt='Flatmate Bills', border=0, align="C", ln=1)
-
-        #insert Period Label & Value
-        pdf.set_font(family='Times', size=14, style='B')
-        pdf.cell(w=100, h=40, txt='Period:', border=0)
-        pdf.cell(w=100, h=40, txt=bill.period, border=0,ln=1)
-
-        # Insert amount of first flatemate1
-        pdf.cell(w=100, h=40, txt=flatmate1.name, border=0)
-        pdf.cell(w=100, h=40, txt=str(round(flatmate2.pays(bill=bill,flatmate2=flatmate2),2)), border=0,ln=1)
-
-        # Insert amount of first flatemate2
-        pdf.cell(w=100, h=40, txt=flatmate2.name, border=0)
-        pdf.cell(w=100, h=40, txt=str(round(flatmate2.pays(bill=bill, flatmate2=flatmate1), 2)), border=0, ln=1)
-
-        pdf.output(self.filename)
-        webbrowser.open(self.filename)
-
-
-
-bill = Bill(amount=120,period="March 2020")
-junaid = Flatmate(name="Junaid",days_in_house=30)
-shabeeb = Flatmate(name="Shabeeb",days_in_house=20)
-
-print(f"Junaid pays : {junaid.pays(bill=bill,flatmate2=shabeeb)}")
-print(f"Shabeeb pays : {shabeeb.pays(bill=bill,flatmate2=junaid)}")
-
-report = PdfReport('Report1.pdf')
-report.generate(flatmate1=junaid,flatmate2=shabeeb,bill=bill)
+report = PdfReport(f'{bill.period}.pdf')
+report.generate(flatmate1=flatmate1, flatmate2=flatmate2, bill=bill)
